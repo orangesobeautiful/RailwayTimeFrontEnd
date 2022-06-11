@@ -2,7 +2,7 @@
   <div class="train-bar-container">
     <train-bar
       v-for="(trainTimeInfo, index) in trainTimeInfoList"
-      :key="index"
+      :key="trainTimeInfo.TrainInfo.TrainNo"
       :itemIndex="index"
       :trainNo="trainTimeInfo.TrainInfo.TrainNo"
       :trainNote="trainTimeInfo.TrainInfo.Note"
