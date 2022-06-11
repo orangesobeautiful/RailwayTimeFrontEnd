@@ -7,6 +7,7 @@ interface trainInfo {
   TrainNo: string;
   TrainTypeName: NameType;
   TripHeadSign: string;
+  Note: string;
 }
 
 interface stationStopTime {

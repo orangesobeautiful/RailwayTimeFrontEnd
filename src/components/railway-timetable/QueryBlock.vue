@@ -4,16 +4,18 @@
       <span> 出發站 </span>
       <div style="width: 20px"></div>
       <q-select
-        class="region-select"
+        class="select region-select"
+        bg-color="white"
         outlined
         v-model="orgSelectRegion"
         :options="regionNameList"
         label="地區"
-        @update:model-value="updateOrgRegion"
+        @update:model-value="updateOrgRegion(orgSelectRegion, 0)"
       />
       <div style="width: 20px"></div>
       <q-select
-        class="region-select"
+        class="select region-select"
+        bg-color="white"
         outlined
         v-model="orgSelectStation"
         :options="orgStationInfoList"
@@ -26,16 +28,18 @@
       <span> 抵達站 </span>
       <div style="width: 20px"></div>
       <q-select
-        class="region-select"
+        class="select region-select"
+        bg-color="white"
         outlined
         v-model="dstSelectRegion"
         :options="regionNameList"
         label="地區"
-        @update:model-value="updateDstRegion"
+        @update:model-value="updateDstRegion(dstSelectRegion, 0)"
       />
       <div style="width: 20px"></div>
       <q-select
-        class="region-select"
+        class="select region-select"
+        bg-color="white"
         outlined
         v-model="dstSelectStation"
         :options="dstStationInfoList"
@@ -55,21 +59,30 @@
 
 <style lang="sass" scoped>
 .query-block
-  width: 100%
+  width: 500px
   display: flex
   flex-direction: column
   align-items: center
+
 .station-select-block
   display: flex
   flex-direction: row
   align-items: center
+
 .region-select
   width: 150px
+
+.select
+  background-color: auto !important
 </style>
 
 <script lang="ts">
 import { ref, defineComponent } from 'vue';
 import { RegionMap, RegionInfo, StationInfo } from 'src/lib/struct/station';
+import {
+  UpdateSearchHistory,
+  GetLastSearchHistory,
+} from 'src/lib/store/station';
 import { api } from 'boot/axios';
 
 export default defineComponent({
@@ -100,10 +113,7 @@ export default defineComponent({
                 regionNameList.value.push(regionInfo.Name);
                 regionMap.value[regionInfo.Name] = regionInfo.StationList;
               });
-              orgSelectRegion.value = data[0].Name;
-              dstSelectRegion.value = data[1].Name;
-              updateOrgRegion();
-              updateDstRegion();
+              updateSelector(data);
             }
           }
         })
@@ -112,19 +122,87 @@ export default defineComponent({
         });
     }
 
-    // 更新站點選擇器
-    function updateOrgRegion() {
-      orgStationInfoList.value = regionMap.value[orgSelectRegion.value];
-      orgSelectStation.value = orgStationInfoList.value[0];
+    // 更新起訖站選擇器資訊
+    function updateSelector(regionList: RegionInfo[]) {
+      let lastSearchInfo = GetLastSearchHistory();
+      if (lastSearchInfo != null) {
+        orgSelectRegion.value = lastSearchInfo.StartRegion;
+        dstSelectRegion.value = lastSearchInfo.DstRegion;
+        updateOrgRegion(
+          orgSelectRegion.value,
+          lastSearchInfo.StartStation.Name.Zh_tw
+        );
+        updateDstRegion(
+          dstSelectRegion.value,
+          lastSearchInfo.DstStation.Name.Zh_tw
+        );
+        emitSearchInfo();
+      } else {
+        orgSelectRegion.value = regionList[0].Name;
+        dstSelectRegion.value = regionList[1].Name;
+        updateOrgRegion(orgSelectRegion.value, '');
+        updateDstRegion(dstSelectRegion.value, '');
+      }
     }
 
-    function updateDstRegion() {
-      dstStationInfoList.value = regionMap.value[dstSelectRegion.value];
-      dstSelectStation.value = dstStationInfoList.value[0];
+    // 更新起始站點選擇器 (selectStation 為空字串時，自動選擇區域中的第一個站點)
+    function updateOrgRegion(selectRegion: string, selectStation: string) {
+      // 初始化 Station List
+      orgStationInfoList.value = regionMap.value[selectRegion];
+
+      // 找尋指定站點的 index
+      let stationIdx = 0;
+      if (selectStation === '') {
+        stationIdx = 0;
+      } else {
+        for (let i = 0; i < orgStationInfoList.value.length; i++) {
+          let stationInfo = orgStationInfoList.value[i];
+          if (
+            stationInfo.Name.Zh_tw === selectStation ||
+            stationInfo.Name.En === selectStation
+          ) {
+            stationIdx = i;
+            break;
+          }
+        }
+      }
+
+      orgSelectStation.value = orgStationInfoList.value[stationIdx];
+    }
+
+    // 更新抵達站點選擇器 (selectStation 為空字串時，自動選擇區域中的第一個站點)
+    function updateDstRegion(selectRegion: string, selectStation: string) {
+      // 初始化 Station List
+      dstStationInfoList.value = regionMap.value[selectRegion];
+
+      // 找尋指定站點的 index
+      let stationIdx = 0;
+      if (selectStation === '') {
+        stationIdx = 0;
+      } else {
+        for (let i = 0; i < orgStationInfoList.value.length; i++) {
+          let stationInfo = orgStationInfoList.value[i];
+          if (
+            stationInfo.Name.Zh_tw === selectStation ||
+            stationInfo.Name.En === selectStation
+          ) {
+            stationIdx = i;
+            break;
+          }
+        }
+      }
+      dstSelectStation.value = dstStationInfoList.value[stationIdx];
     }
 
     // 發送查詢資訊
     function emitSearchInfo() {
+      UpdateSearchHistory(
+        orgSelectRegion.value,
+        orgSelectStation.value,
+        dstSelectRegion.value,
+        dstSelectStation.value
+      );
+
       target.emit(
         'searchBtnClicked',
         orgSelectStation.value.StationID,
@@ -134,7 +212,6 @@ export default defineComponent({
 
     void getRegionStation();
 
-    console.log(regionNameList);
     return {
       regionNameList,
       orgStationInfoList,

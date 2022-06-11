@@ -9,6 +9,7 @@
 .time-table-index
   display: flex
   flex-direction: column
+  align-items: center
   width: 100%
   background: grey
 </style>
@@ -28,7 +29,6 @@ export default defineComponent({
     const refTimetable = ref<TimetalbeRef>({} as TimetalbeRef);
 
     const searchTimeTable = (orgStationID: string, dstStationID: string) => {
-      console.log(orgStationID, dstStationID);
       refTimetable.value?.getStationODTimetable(orgStationID, dstStationID);
     };
     return { refTimetable, searchTimeTable };

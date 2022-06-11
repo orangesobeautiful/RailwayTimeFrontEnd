@@ -3,8 +3,6 @@
     <q-header elevated>
       <q-toolbar>
         <q-toolbar-title> 台鐵時刻表查詢 </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
     </q-header>
 

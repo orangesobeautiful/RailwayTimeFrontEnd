@@ -6,6 +6,10 @@
       <span class="train-info-text"> {{ trainTypeName }}</span>
     </div>
 
+    <div class="train-note train-note-text">
+      <span v-if="showNote">{{ noteMsg }}</span>
+    </div>
+
     <div class="text-vertical-center delay-time-text">
       <div v-if="delayMinute > 0">
         <span>延遲</span>
@@ -65,6 +69,10 @@
   width: 80px
   font-size: 30px
 
+.train-note-text
+  height: 23px
+  color: orange
+
 .delay-time-text
   height: 23px
   color: red
@@ -79,14 +87,30 @@ export default defineComponent({
   props: {
     itemIndex: Number,
     trainNo: String,
+    trainNote: String,
     trainTypeName: String,
     orgDepartureTime: String,
     desArrivalTime: String,
     delayMinute: Number,
   },
 
-  setup() {
-    return {};
+  setup(props) {
+    // 處理 train note 訊息
+    let noteMsg = '';
+    if (props.trainNote) {
+      noteMsg = props.trainNote.replace('每日行駛。', '');
+      noteMsg = noteMsg.trim();
+    }
+
+    let showNote = false;
+    if (noteMsg != '') {
+      showNote = true;
+    }
+
+    return {
+      noteMsg,
+      showNote,
+    };
   },
 });
 </script>

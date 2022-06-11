@@ -5,6 +5,7 @@
       :key="index"
       :itemIndex="index"
       :trainNo="trainTimeInfo.TrainInfo.TrainNo"
+      :trainNote="trainTimeInfo.TrainInfo.Note"
       :trainTypeName="trainTimeInfo.TrainInfo.TrainTypeName.Zh_tw"
       :orgDepartureTime="trainTimeInfo.OriginStationStopTime.DepartureTime"
       :desArrivalTime="trainTimeInfo.DestinationStationStopTime.ArrivalTime"
@@ -43,9 +44,8 @@ export default defineComponent({
         .get(urlPath)
         .then((res) => {
           let data = res.data as TrainTimeInfo[];
+          trainTimeInfoList.value = [];
           if (data) {
-            trainTimeInfoList.value = [];
-            //trainTimeInfoList.value = data;
             const nowTime = new Date();
             for (let i = 0; i < data.length; i++) {
               // 設定表定的最晚抵達時間
