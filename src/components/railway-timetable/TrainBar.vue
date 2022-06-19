@@ -11,7 +11,7 @@
     </div>
 
     <div class="text-vertical-center delay-time-text">
-      <div v-if="delayMinute > 0">
+      <div v-if="delayMinute && delayMinute > 0">
         <span>延遲</span>
         <span> {{ delayMinute }}</span>
         <span>分鐘</span>

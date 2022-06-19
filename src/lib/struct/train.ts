@@ -1,6 +1,6 @@
 import { NameType } from 'src/lib/struct/common';
 
-interface trainInfo {
+interface TrainInfo {
   Direction: number; // 列車行駛方向
   StartingStatioinName: NameType;
   EndStatioinName: NameType;
@@ -19,7 +19,7 @@ interface stationStopTime {
 
 // TrainTimeInfoJson 列車時刻的結構
 interface TrainTimeInfo {
-  trainInfo: trainInfo;
+  TrainInfo: TrainInfo;
   DelayMinute: number;
   OriginStationStopTime: stationStopTime;
   DestinationStationStopTime: stationStopTime;
