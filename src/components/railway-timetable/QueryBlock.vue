@@ -10,7 +10,7 @@
         v-model="orgSelectRegion"
         :options="regionNameList"
         label="地區"
-        @update:model-value="updateOrgRegion(orgSelectRegion, 0)"
+        @update:model-value="updateOrgRegion(orgSelectRegion, '')"
       />
       <div style="width: 20px"></div>
       <q-select
@@ -34,7 +34,7 @@
         v-model="dstSelectRegion"
         :options="regionNameList"
         label="地區"
-        @update:model-value="updateDstRegion(dstSelectRegion, 0)"
+        @update:model-value="updateDstRegion(dstSelectRegion, '')"
       />
       <div style="width: 20px"></div>
       <q-select
