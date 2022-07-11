@@ -101,21 +101,22 @@
 
 <script lang="ts">
 import { ref, defineComponent, onMounted } from 'vue';
+import { useStore } from 'src/store';
 import {
+  RStationInfo,
   RegionMap,
-  RegionInfo,
   StationInfo,
   FindRegionByStation,
 } from 'src/lib/struct/station';
 import {
   SearchInfo,
+  DetailSearchInfo,
   UpdateSearchHistory,
   GetLastSearchHistory,
   FindFavIdx,
   DelFavSearchInfoByIdx,
   AddFavSearchInfo,
 } from 'src/lib/store/stationHistory';
-import { api } from 'boot/axios';
 
 export default defineComponent({
   name: 'QueryBlock',
@@ -126,6 +127,7 @@ export default defineComponent({
     initDsid: String,
   },
   setup(props, target) {
+    const $store = useStore();
     const regionMap = ref({} as RegionMap);
     const regionNameList = ref([] as string[]);
     const orgStationInfoList = ref([] as StationInfo[]);
@@ -189,32 +191,34 @@ export default defineComponent({
 
     // 初始化選擇的站點選項
     function initSelector() {
-      let specifySInfo: SearchInfo | null;
+      let specifySInfo: DetailSearchInfo | null = null;
+      let sRSInfo: RStationInfo | null = null;
+      let dRSInfo: RStationInfo | null = null;
       if (
         props.initSsid != undefined &&
         props.initDsid != undefined &&
         props.initSsid != '' &&
         props.initDsid != ''
       ) {
-        // 有 URL 的指定站點
-        let sRSInfo = FindRegionByStation(regionMap.value, props.initSsid);
-        let dRSInfo = FindRegionByStation(regionMap.value, props.initDsid);
-
-        if (sRSInfo != null && dRSInfo != null) {
-          specifySInfo = {
-            StartRegion: sRSInfo.RegionName,
-            StartStation: sRSInfo,
-            DstRegion: dRSInfo.RegionName,
-            DstStation: dRSInfo,
-          };
-        } else {
-          specifySInfo = null;
-        }
+        // 判斷是否有從 url 指派的搜尋站點
+        sRSInfo = FindRegionByStation(regionMap.value, props.initSsid);
+        dRSInfo = FindRegionByStation(regionMap.value, props.initDsid);
       } else {
-        specifySInfo = null;
+        // 套用上次的搜尋歷史紀錄
+        let lastSInfo = GetLastSearchHistory();
+        if (lastSInfo != null) {
+          sRSInfo = FindRegionByStation(regionMap.value, lastSInfo.SSID);
+          dRSInfo = FindRegionByStation(regionMap.value, lastSInfo.DSID);
+        }
       }
-      if (specifySInfo == null) {
-        specifySInfo = GetLastSearchHistory();
+
+      if (sRSInfo != null && dRSInfo != null) {
+        specifySInfo = {
+          StartRegion: sRSInfo.RegionName,
+          StartStation: sRSInfo,
+          DstRegion: dRSInfo.RegionName,
+          DstStation: dRSInfo,
+        };
       }
 
       if (specifySInfo != null) {
@@ -237,33 +241,11 @@ export default defineComponent({
       }
     }
 
-    async function getRegionStation() {
-      const urlPath = '/railway/region';
-      await api
-        .get(urlPath)
-        .then((res) => {
-          let data = res.data as RegionInfo[];
-          if (data) {
-            if (data.length > 0) {
-              data.forEach((regionInfo) => {
-                regionNameList.value.push(regionInfo.Name);
-                regionMap.value[regionInfo.Name] = regionInfo.StationList;
-              });
-            }
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-
     // 發送查詢資訊
     function emitSearchInfo() {
       UpdateSearchHistory(
-        orgSelectRegion.value,
-        orgSelectStation.value,
-        dstSelectRegion.value,
-        dstSelectStation.value
+        orgSelectStation.value.StationID,
+        dstSelectStation.value.StationID
       );
 
       target.emit(
@@ -275,10 +257,8 @@ export default defineComponent({
 
     function curSearchInfo(): SearchInfo {
       return {
-        StartRegion: orgSelectRegion.value,
-        StartStation: orgSelectStation.value,
-        DstRegion: dstSelectRegion.value,
-        DstStation: dstSelectStation.value,
+        SSID: orgSelectStation.value.StationID,
+        DSID: dstSelectStation.value.StationID,
       };
     }
 
@@ -304,8 +284,9 @@ export default defineComponent({
       isFav.value = !isFav.value;
     }
 
-    onMounted(async () => {
-      await getRegionStation();
+    onMounted(() => {
+      regionNameList.value = $store.state.region.nameList;
+      regionMap.value = $store.state.region.map;
       void initSelector();
       void checkIsFav();
     });

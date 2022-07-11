@@ -5,8 +5,14 @@ const favSearchKey = 'f-s';
 
 const FavMaxStoreNum = 20;
 
-// SearchInfo 搜尋的歷史紀錄結構
+// SearchInfo 搜尋的搜尋紀錄結構
 interface SearchInfo {
+  SSID: string; // 起始站的 ID
+  DSID: string; // 目的站的 ID
+}
+
+// DetailSearchInfo 較詳細記錄資訊的搜尋紀錄
+interface DetailSearchInfo {
   StartRegion: string; // 起始站地區
   StartStation: StationInfo; // 起始站
   DstRegion: string; // 目的站區域
@@ -16,10 +22,8 @@ interface SearchInfo {
 //isSIEqual 判斷兩個 SearchInfo 是否相同
 function isSIEqual(a: SearchInfo, b: SearchInfo): boolean {
   if (
-    (a.StartStation.StationID == b.StartStation.StationID &&
-      a.DstStation.StationID == b.DstStation.StationID) ||
-    (a.StartStation.StationID == b.DstStation.StationID &&
-      a.DstStation.StationID == b.StartStation.StationID)
+    (a.SSID == b.SSID && a.DSID == b.DSID) ||
+    (a.SSID == b.DSID && a.DSID == b.SSID)
   ) {
     return true;
   }
@@ -46,20 +50,13 @@ function readSearchHistory(): SearchInfo[] {
   return res;
 }
 
-function UpdateSearchHistory(
-  startRegion: string,
-  startStation: StationInfo,
-  dstRegion: string,
-  dstStation: StationInfo
-) {
+function UpdateSearchHistory(ssid: string, dsid: string) {
   const maxStoreNum = 10;
 
   let res: SearchInfo[] = readSearchHistory();
   const newSHInfo: SearchInfo = {
-    StartRegion: startRegion,
-    DstRegion: dstRegion,
-    StartStation: startStation,
-    DstStation: dstStation,
+    SSID: ssid,
+    DSID: dsid,
   };
   if (res.length > 0) {
     // 尋找過往紀錄有沒有相同的
@@ -181,6 +178,7 @@ function DelFavSearchInfoByInfo(sInfo: SearchInfo): boolean {
 
 export {
   SearchInfo,
+  DetailSearchInfo,
   UpdateSearchHistory,
   GetLastSearchHistory,
   FavMaxStoreNum,

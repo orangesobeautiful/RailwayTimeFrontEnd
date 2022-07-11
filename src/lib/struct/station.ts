@@ -37,4 +37,22 @@ function FindRegionByStation(
   return null;
 }
 
-export { RegionInfo, RegionMap, StationInfo, FindRegionByStation };
+function GetStationNameByStationID(
+  regionMap: RegionMap,
+  stationID: string
+): string {
+  const rsInfo = FindRegionByStation(regionMap, stationID);
+  if (rsInfo != null) {
+    return rsInfo.Name.Zh_tw;
+  }
+  return '';
+}
+
+export {
+  RegionInfo,
+  RegionMap,
+  StationInfo,
+  RStationInfo,
+  FindRegionByStation,
+  GetStationNameByStationID,
+};

@@ -24,9 +24,9 @@
 
 <script lang="ts">
 import { ref, defineComponent } from 'vue';
+import { api } from 'boot/axios';
 import TrainBar from './TrainBar.vue';
 import { TrainTimeInfo } from 'src/lib/struct/train';
-import { api } from 'boot/axios';
 
 export default defineComponent({
   name: 'Timetable',
