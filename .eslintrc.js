@@ -45,6 +45,8 @@ module.exports = {
     // https://github.com/prettier/eslint-config-prettier#installation
     // usage with Prettier, provided by 'eslint-config-prettier'.
     'prettier',
+
+    'plugin:quasar/standard',
   ],
 
   plugins: [
@@ -58,6 +60,8 @@ module.exports = {
     // https://github.com/typescript-eslint/typescript-eslint/issues/389#issuecomment-509292674
     // Prettier has not been included as plugin to avoid performance impact
     // add it as an extension for your IDE
+
+    'quasar',
   ],
 
   globals: {
@@ -83,5 +87,8 @@ module.exports = {
 
     // allow debugger during development only
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+
+    'quasar/no-invalid-props': 'error',
+    'quasar/no-invalid-qfield-usage': 'error',
   },
 };

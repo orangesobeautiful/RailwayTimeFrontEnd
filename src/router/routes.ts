@@ -5,7 +5,15 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('src/pages/TimeTableIndex.vue') },
+      {
+        path: '',
+        component: () => import('src/pages/TimeTableIndex.vue'),
+      },
+      {
+        path: 'search',
+        component: () => import('src/pages/TimeTableIndex.vue'),
+      },
+      { path: 'favorite', component: () => import('src/pages/Favorite.vue') },
     ],
   },
 
