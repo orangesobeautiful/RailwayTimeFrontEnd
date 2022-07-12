@@ -18,6 +18,10 @@ const routes: RouteRecordRaw[] = [
         path: 'history',
         component: () => import('src/pages/SearchHistory.vue'),
       },
+      {
+        path: 'about',
+        component: () => import('src/pages/About.vue'),
+      },
     ],
   },
 

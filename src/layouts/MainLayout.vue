@@ -3,7 +3,7 @@
     <q-header class="bg-green-11 text-black" elevated>
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleMenuDrawer" />
-        <q-toolbar-title> 台鐵時刻表查詢 </q-toolbar-title>
+        <q-toolbar-title> 台鐵動態資訊查詢 </q-toolbar-title>
       </q-toolbar>
     </q-header>
 

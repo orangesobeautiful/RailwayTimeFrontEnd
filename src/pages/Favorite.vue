@@ -34,7 +34,7 @@ import {
 } from 'src/lib/store/stationHistory';
 
 export default defineComponent({
-  name: 'Favorite',
+  name: 'FavoritePage',
   components: { SearchCard },
   setup() {
     const $store = useStore();
