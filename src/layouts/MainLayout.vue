@@ -16,7 +16,6 @@
               v-ripple
               :to="menuItem.link"
               :active="menuItem.label === menuSelect"
-              active-class="my-menu-link"
               @click="menuSelect = menuItem.label"
             >
               <q-item-section avatar>
@@ -38,11 +37,7 @@
   </q-layout>
 </template>
 
-<style lang="sass">
-.my-menu-link
-  color: $blue-10
-  background: $light-green-11
-</style>
+<style lang="sass"></style>
 
 <script lang="ts">
 import { ref, defineComponent } from 'vue';
@@ -72,13 +67,13 @@ export default defineComponent({
       {
         icon: 'history',
         label: '歷史紀錄',
-        link: '/',
+        link: '/history',
         separator: true,
       },
       {
         icon: 'info',
         label: '關於',
-        link: '/',
+        link: '/about',
         separator: false,
       },
     ];

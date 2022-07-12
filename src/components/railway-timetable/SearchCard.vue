@@ -1,30 +1,28 @@
 <template>
-  <q-card
-    dark
-    bordered
-    class="bg-grey-9 search-info-card"
-    @click="toSearchPage('1234', '5678')"
-  >
+  <q-card bordered class="cursor-pointer search-info-card">
     <q-btn
       class="delete-btn q-pa-none text-red"
       icon="delete"
       size="13px"
       round
-      v-if="false"
+      @click="emitDelete"
+      v-if="true"
     />
-    <q-card-section />
-    <q-card-section align="center" class="q-py-sm station-section">
-      <div>{{ startStationName }}</div>
-      <div style="height: 15px"></div>
-      <div>{{ dstStationName }}</div>
-    </q-card-section>
-    <q-card-section />
+    <div @click="toSearchPage(ssidStr, dsidStr)">
+      <q-card-section />
+      <q-card-section align="center" class="q-py-sm station-section">
+        <div>{{ startStationName }}</div>
+        <div style="height: 15px"></div>
+        <div>{{ dstStationName }}</div>
+      </q-card-section>
+      <q-card-section />
+    </div>
   </q-card>
 </template>
 
 <style lang="sass" scoped>
 .search-info-card
-  max-width: 150px
+  width: 175px
 .delete-btn
     position: absolute
     top: 3px
@@ -37,20 +35,47 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'src/store';
+import { GetStationNameByStationID } from 'src/lib/struct/station';
 
 export default defineComponent({
   name: 'SearchCard',
   props: {
-    startStationName: String,
-    dstStationName: String,
+    ssid: String,
+    dsid: String,
   },
-  setup() {
+  setup(props, target) {
     const router = useRouter();
+    const $store = useStore();
+    const ssidStr = props.ssid as string;
+    const dsidStr = props.dsid as string;
+
+    const startStationName = GetStationNameByStationID(
+      $store.state.region.map,
+      ssidStr
+    );
+    const dstStationName = GetStationNameByStationID(
+      $store.state.region.map,
+      dsidStr
+    );
 
     async function toSearchPage(ssid: string, dsid: string) {
       await router.push('/search?ssid=' + ssid + '&dsid=' + dsid);
     }
-    return { toSearchPage };
+
+    // 發送刪除訊號
+    function emitDelete() {
+      target.emit('deleteSearchInfo', ssidStr, dsidStr);
+    }
+
+    return {
+      ssidStr,
+      dsidStr,
+      startStationName,
+      dstStationName,
+      toSearchPage,
+      emitDelete,
+    };
   },
 });
 </script>

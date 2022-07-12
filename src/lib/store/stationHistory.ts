@@ -40,7 +40,7 @@ function encodeSearchInfoList(v: SearchInfo[]): string {
   return JSON.stringify(v);
 }
 
-function readSearchHistory(): SearchInfo[] {
+function ReadSearchHistory(): SearchInfo[] {
   const searchHistoryStr = localStorage.getItem(searchHistoryKey);
   let res: SearchInfo[] = [];
   if (searchHistoryStr != null) {
@@ -50,10 +50,16 @@ function readSearchHistory(): SearchInfo[] {
   return res;
 }
 
+// FindSearchHistoryIdx 查詢 search info 在 history list 中的 index
+function FindSearchHistoryIdx(info: SearchInfo): number {
+  const historyList: SearchInfo[] = ReadSearchHistory();
+  return findIdxWithExistList(info, historyList);
+}
+
 function UpdateSearchHistory(ssid: string, dsid: string) {
   const maxStoreNum = 10;
 
-  let res: SearchInfo[] = readSearchHistory();
+  let res: SearchInfo[] = ReadSearchHistory();
   const newSHInfo: SearchInfo = {
     SSID: ssid,
     DSID: dsid,
@@ -86,11 +92,35 @@ function UpdateSearchHistory(ssid: string, dsid: string) {
 }
 
 function GetLastSearchHistory(): SearchInfo | null {
-  const shList = readSearchHistory();
+  const shList = ReadSearchHistory();
   if (shList.length > 0) {
     return shList[0];
   }
   return null;
+}
+
+// 刪除 search history 中指定 index 的 search info
+function DelHistorySearchInfoByIdx(idx: number): boolean {
+  const res: SearchInfo[] = ReadSearchHistory();
+
+  if (0 <= idx && idx < res.length) {
+    res.splice(idx, 1);
+  } else {
+    return false;
+  }
+
+  // 儲存紀錄
+  localStorage.setItem(searchHistoryKey, encodeSearchInfoList(res));
+  return true;
+}
+
+// 刪除 search history 中指定的 search info
+function DelHistorySearchInfoByInfo(sInfo: SearchInfo): boolean {
+  const idx = FindSearchHistoryIdx(sInfo);
+  if (idx >= 0) {
+    return DelHistorySearchInfoByIdx(idx);
+  }
+  return false;
 }
 
 // 讀取 favorite list
@@ -107,19 +137,19 @@ function GetFavList(): SearchInfo[] {
 // FindFavIdx 查詢 search info 在 favorite list 中的 index
 function FindFavIdx(fav: SearchInfo): number {
   const favList: SearchInfo[] = GetFavList();
-  return findFavIdxWithExistList(fav, favList);
+  return findIdxWithExistList(fav, favList);
 }
 
-// FindFavIdx 查詢 search info 在 favorite list 中的 index
-function findFavIdxWithExistList(
-  fav: SearchInfo,
-  favList: SearchInfo[]
+// findIdxWithExistList 查詢 search info 在 list 中的 index
+function findIdxWithExistList(
+  info: SearchInfo,
+  infoList: SearchInfo[]
 ): number {
   // 尋找過往紀錄有沒有相同的
   let findIdx = -1;
-  for (let i = 0; i < favList.length; i++) {
-    const sInfo = favList[i];
-    if (isSIEqual(sInfo, fav)) {
+  for (let i = 0; i < infoList.length; i++) {
+    const sInfo = infoList[i];
+    if (isSIEqual(sInfo, info)) {
       findIdx = i;
       break;
     }
@@ -135,7 +165,7 @@ function AddFavSearchInfo(newFav: SearchInfo): boolean {
   // 數量小於 FavMaxStoreNum 才允許新增
   if (res.length < FavMaxStoreNum) {
     // 尋找過往紀錄有沒有相同的
-    const findIdx = findFavIdxWithExistList(newFav, res);
+    const findIdx = findIdxWithExistList(newFav, res);
 
     // 忽略重複的 favorite
     if (findIdx < 0) {
@@ -179,8 +209,10 @@ function DelFavSearchInfoByInfo(sInfo: SearchInfo): boolean {
 export {
   SearchInfo,
   DetailSearchInfo,
+  ReadSearchHistory,
   UpdateSearchHistory,
   GetLastSearchHistory,
+  DelHistorySearchInfoByInfo,
   FavMaxStoreNum,
   GetFavList,
   FindFavIdx,

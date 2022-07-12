@@ -14,6 +14,10 @@ const routes: RouteRecordRaw[] = [
         component: () => import('src/pages/TimeTableIndex.vue'),
       },
       { path: 'favorite', component: () => import('src/pages/Favorite.vue') },
+      {
+        path: 'history',
+        component: () => import('src/pages/SearchHistory.vue'),
+      },
     ],
   },
 
