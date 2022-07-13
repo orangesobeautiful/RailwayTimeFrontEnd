@@ -100,12 +100,12 @@
 </style>
 
 <script lang="ts">
-import { ref, defineComponent, onMounted } from 'vue';
-import { useStore } from 'src/store';
+import { ref, defineComponent, onBeforeMount } from 'vue';
 import {
   RStationInfo,
   RegionMap,
   StationInfo,
+  GetRegionData,
   FindRegionByStation,
 } from 'src/lib/struct/station';
 import {
@@ -127,7 +127,6 @@ export default defineComponent({
     initDsid: String,
   },
   setup(props, target) {
-    const $store = useStore();
     const regionMap = ref({} as RegionMap);
     const regionNameList = ref([] as string[]);
     const orgStationInfoList = ref([] as StationInfo[]);
@@ -234,8 +233,10 @@ export default defineComponent({
         );
         emitSearchInfo();
       } else {
-        orgSelectRegion.value = regionNameList.value[0];
-        dstSelectRegion.value = regionNameList.value[1];
+        if (regionNameList.value.length > 1) {
+          orgSelectRegion.value = regionNameList.value[0];
+          dstSelectRegion.value = regionNameList.value[1];
+        }
         updateOrgRegion(orgSelectRegion.value, '');
         updateDstRegion(dstSelectRegion.value, '');
       }
@@ -284,9 +285,10 @@ export default defineComponent({
       isFav.value = !isFav.value;
     }
 
-    onMounted(() => {
-      regionNameList.value = $store.state.region.nameList;
-      regionMap.value = $store.state.region.map;
+    onBeforeMount(async () => {
+      const regionData = await GetRegionData();
+      regionNameList.value = regionData.NameList;
+      regionMap.value = regionData.Map;
       void initSelector();
       void checkIsFav();
     });

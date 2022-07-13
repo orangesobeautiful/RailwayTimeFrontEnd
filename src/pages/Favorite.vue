@@ -23,9 +23,8 @@
 </style>
 
 <script lang="ts">
-import { ref, defineComponent, onMounted } from 'vue';
-import { useStore } from 'src/store';
-import { RegionMap } from 'src/lib/struct/station';
+import { ref, defineComponent, onBeforeMount } from 'vue';
+import { RegionMap, GetRegionData } from 'src/lib/struct/station';
 import SearchCard from 'components/railway-timetable/SearchCard.vue';
 import {
   SearchInfo,
@@ -37,7 +36,6 @@ export default defineComponent({
   name: 'FavoritePage',
   components: { SearchCard },
   setup() {
-    const $store = useStore();
     const favList = ref([] as SearchInfo[]);
     const regionMap = ref({} as RegionMap);
 
@@ -46,9 +44,10 @@ export default defineComponent({
       favList.value = GetFavList();
     }
 
-    onMounted(() => {
+    onBeforeMount(async () => {
       // 讀取 regionMap
-      regionMap.value = $store.state.region.map;
+      const regionData = await GetRegionData();
+      regionMap.value = regionData.Map;
       readFavList();
     });
 
